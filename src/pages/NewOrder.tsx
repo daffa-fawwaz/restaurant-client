@@ -7,7 +7,7 @@ import { toast } from "sonner";
 interface MenuItem {
   id: number;
   name: string;
-  price: number;
+  price: number | string;
   category: string;
 }
 
@@ -35,8 +35,8 @@ interface OrderPayload {
   }[];
 }
 
-const formatPrice = (price: number) => {
-  return `Rp ${price.toLocaleString("id-ID")}`;
+const formatPrice = (price: number | string) => {
+  return `Rp ${Number(price).toLocaleString("id-ID")}`;
 };
 
 export default function NewOrder() {
@@ -46,7 +46,7 @@ export default function NewOrder() {
 
   const [tables, setTables] = useState<Table[]>([]);
   const [selectedTableId, setSelectedTableId] = useState<number | null>(null);
-  const [menus, setMenus] = useState<Record<string, MenuItem[]>>([]);
+  const [menus, setMenus] = useState<Record<string, MenuItem[]>>({});
 
   const [orderItems, setOrderItems] = useState<OrderItem[]>([]);
 
@@ -67,7 +67,7 @@ export default function NewOrder() {
         console.log("tables:", tableData);
 
         const groupedMenus = menuData.reduce(
-          (acc: Record<string, MenuItem[]>, menu: MenuItem) => {
+          (acc: Record<string, MenuItem[]>, menu) => {
             if (!acc[menu.category]) {
               acc[menu.category] = [];
             }
@@ -162,7 +162,7 @@ export default function NewOrder() {
 
   const subtotal = useMemo(() => {
     return orderItems.reduce(
-      (total, item) => total + item.price * item.quantity,
+      (total, item) => total + Number(item.price) * item.quantity,
       0,
     );
   }, [orderItems]);
@@ -416,7 +416,7 @@ export default function NewOrder() {
                     </span>
 
                     <span className="shrink-0 text-[#806E60]">
-                      {formatPrice(item.price * item.quantity)}
+                      {formatPrice(Number(item.price) * item.quantity)}
                     </span>
                   </div>
 

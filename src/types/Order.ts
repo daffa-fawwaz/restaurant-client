@@ -4,13 +4,6 @@ export interface CreateOrderItem {
   note?: string;
 }
 
-export interface CreateOrderPayload {
-  tableId: number;
-  source: "ADMIN";
-  nameCustomer: string;
-  items: CreateOrderItem[];
-}
-
 
 export interface OrderMenu {
   id: number;
@@ -85,9 +78,5 @@ export interface CreateOrderPayload {
   tableId: number;
   source: "ADMIN";
   nameCustomer?: string;
-  items: {
-    menuId: number;
-    quantity: number;
-    note?: string;
-  }[];
+  items: CreateOrderItem[];
 }

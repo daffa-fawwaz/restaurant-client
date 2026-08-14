@@ -3,7 +3,7 @@ import { Printer, Search } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 import { getAllOrder } from "../api/orderApi";
-import type { Order, OrderStatus } from "../types/Order";
+import type { Order } from "../types/Order";
 
 type FilterStatus = "ALL" | "SERVED" | "PAID";
 

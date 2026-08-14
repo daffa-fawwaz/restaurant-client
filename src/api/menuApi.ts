@@ -1,5 +1,5 @@
 import api from "./axios";
-import type { Menu } from "../types/Menu";
+import type { Menu, UpdateMenuPayload } from "../types/Menu";
 
 
 interface ApiResponse<T> {
@@ -38,7 +38,7 @@ export const updateAvailable = async (id: number): Promise<Menu> => {
     return response.data.data
 }
 
-export const updateMenu = async (id: number, formData: Menu): Promise<Menu> => {
+export const updateMenu = async (id: number, formData: UpdateMenuPayload): Promise<Menu> => {
     const token = localStorage.getItem("token")
 
     const response = await api.put<ApiResponse<Menu>>(`/menus/${id}`, formData, {
@@ -53,10 +53,9 @@ export const updateMenu = async (id: number, formData: Menu): Promise<Menu> => {
 export const deleteMenu = async (id: number) => {
     const token = localStorage.getItem("token")
 
-    const response = await api.delete<ApiResponse<Menu>>(`/menus/${id}`, {
+    await api.delete<ApiResponse<Menu>>(`/menus/${id}`, {
         headers: {
             Authorization: `Bearer ${token}`
         }
     })
 }
-

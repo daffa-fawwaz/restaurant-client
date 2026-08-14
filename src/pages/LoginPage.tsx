@@ -173,7 +173,14 @@ export default function LoginPage() {
           </div>
         </div>
 
+
         <div className="relative hidden min-h-screen overflow-hidden lg:block">
+          {/* IMAGE */}
+          <img
+            src="/warung.webp"
+            alt="Restaurant"
+            className="absolute inset-0 h-full w-full object-cover"
+          />
 
           {/* ORANGE OVERLAY */}
           <div className="absolute inset-0 bg-[#F56600]/70" />

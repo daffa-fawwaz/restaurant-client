@@ -1,12 +1,5 @@
 import api from "./axios";
-import type { Table, CreateTablePayload } from "../types/Table";
-
-interface ApiResponse<T> {
-  succes: boolean;
-  status: number;
-  messages: string;
-  data: T;
-}
+import type { CreateTablePayload } from "../types/Table";
 
 export const getAllTable = async () => {
   const token = localStorage.getItem("token");

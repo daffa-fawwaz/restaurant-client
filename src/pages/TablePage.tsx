@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
-import { Pencil, Trash2, Plus, CheckCircle, Armchair } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Pencil, Trash2, CheckCircle, Armchair } from "lucide-react";
 import TableModal from "../components/table/TableModal";
 import SummaryCard from "../components/table/SummaryCard";
 import { toast } from "sonner";
@@ -29,7 +29,6 @@ const initialForm: TableForm = {
 export default function TablePage() {
   const [tables, setTables] = useState<Table[]>([]);
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTable, setEditingTable] = useState<Table | null>(null);
 
   const { tableModalOpen, openTableModal, closeTableModal } = useHeaderAction();
@@ -104,7 +103,7 @@ export default function TablePage() {
   };
 
   const handleCloseModal = () => {
-    setIsModalOpen(false);
+    closeTableModal();
     setEditingTable(null);
     setForm(initialForm);
   };

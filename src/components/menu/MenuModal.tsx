@@ -1,15 +1,5 @@
 import { X } from "lucide-react";
-
-interface Menu {
-  id: number;
-  name: string;
-  description: string;
-  price: number;
-  image: string | null;
-  category: string;
-  isAvailable: boolean;
-  createdAt: string;
-}
+import type { Menu } from "../../types/Menu";
 
 interface MenuForm {
   name: string;

@@ -19,7 +19,7 @@ interface MenuForm {
   description: string;
   category: string;
   price: string;
-  image: string;
+  image: File | null;
   isAvailable: boolean;
 }
 
@@ -28,7 +28,7 @@ const initialForm: MenuForm = {
   description: "",
   category: "Main",
   price: "",
-  image: "",
+  image: null,
   isAvailable: true,
 };
 
@@ -91,7 +91,7 @@ export default function MenuPage() {
       description: menu.description,
       price: String(menu.price),
       category: menu.category,
-      image: menu.image ?? "",
+      image: null,
       isAvailable: menu.isAvailable,
     });
 
@@ -317,7 +317,7 @@ export default function MenuPage() {
                 </td>
 
                 <td className="px-5 py-4 font-medium text-[#2d211b]">
-                  {formatPrice(menu.price)}
+                  {formatPrice(Number(menu.price))}
                 </td>
                 <td className="px-5 py-4 font-medium text-[#2d211b]">
                   {menu.category}
