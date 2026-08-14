@@ -1,11 +1,11 @@
 import { X } from "lucide-react";
 import type { Table, TableForm } from "../types/table";
+import { useHeaderAction } from "../../contexts/HeaderActionContext";
 
 interface TableModalProps {
   form: TableForm;
   setForm: React.Dispatch<React.SetStateAction<TableForm>>;
   editingTable: Table | null;
-  onClose: () => void;
   onSubmit: (e: React.FormEvent) => void;
 }
 
@@ -16,9 +16,10 @@ export default function TableModal({
   onClose,
   onSubmit,
 }: TableModalProps) {
+  const { closeTableModal } = useHeaderAction();
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black/50">
-      <div className="w-full max-w-lg rounded-2xl bg-white p-7">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-3 sm:p-4">
+      <div className="max-h-[calc(100dvh-1.5rem)] w-full max-w-lg overflow-y-auto rounded-2xl bg-white p-4 sm:max-h-[calc(100dvh-2rem)] sm:p-7">
         <div className="mb-6 flex items-start justify-between">
           <div>
             <h2 className="text-2xl font-bold">
@@ -30,7 +31,7 @@ export default function TableModal({
             </p>
           </div>
 
-          <button onClick={onClose}>
+          <button onClick={closeTableModal}>
             <X size={22} />
           </button>
         </div>
@@ -100,18 +101,18 @@ export default function TableModal({
             </button>
           </div>
 
-          <div className="flex justify-end gap-3">
+          <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
             <button
               type="button"
-              onClick={onClose}
-              className="rounded-xl border px-5 py-3 font-semibold"
+              onClick={closeTableModal}
+              className="w-full rounded-xl border px-5 py-3 font-semibold sm:w-auto"
             >
               Batal
             </button>
 
             <button
               type="submit"
-              className="rounded-xl bg-orange-500 px-5 py-3 font-semibold text-white"
+              className="w-full rounded-xl bg-orange-500 px-5 py-3 font-semibold text-white sm:w-auto"
             >
               {editingTable ? "Simpan perubahan" : "Tambah meja"}
             </button>

@@ -6,6 +6,7 @@ interface Menu {
   description: string;
   price: number;
   image: string | null;
+  category: string;
   isAvailable: boolean;
   createdAt: string;
 }
@@ -13,8 +14,9 @@ interface Menu {
 interface MenuForm {
   name: string;
   description: string;
+  category: string;
   price: string;
-  image: string;
+  image: File | null;
   isAvailable: boolean;
 }
 
@@ -34,16 +36,14 @@ export default function MenuModal({
   onSubmit,
 }: MenuModalProps) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-      <div className="w-full max-w-lg rounded-2xl bg-white p-7 shadow-xl">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-3 sm:p-4">
+      <div className="max-h-[calc(100dvh-1.5rem)] w-full max-w-lg overflow-y-auto rounded-2xl bg-white p-4 shadow-xl sm:max-h-[calc(100dvh-2rem)] sm:p-7">
         {/* HEADER */}
 
         <div className="mb-6 flex items-start justify-between">
           <div>
             <h2 className="text-xl font-bold text-[#2d211b]">
-              {editingMenu
-                ? "Edit Menu"
-                : "Tambah Menu"}
+              {editingMenu ? "Edit Menu" : "Tambah Menu"}
             </h2>
 
             <p className="mt-1 text-sm text-[#8b7768]">
@@ -54,6 +54,7 @@ export default function MenuModal({
           </div>
 
           <button
+            type="button"
             onClick={onClose}
             className="rounded-lg p-1 text-[#8b7768] hover:bg-gray-100"
           >
@@ -105,6 +106,32 @@ export default function MenuModal({
             />
           </div>
 
+          {/* CATEGORY */}
+
+          <div className="mb-4">
+            <label className="mb-2 block text-sm font-semibold text-[#2d211b]">
+              Kategori
+            </label>
+
+            <select
+              required
+              value={form.category}
+              onChange={(e) =>
+                setForm((prev) => ({
+                  ...prev,
+                  category: e.target.value,
+                }))
+              }
+              className="w-full rounded-xl border border-[#eadfd6] bg-white px-4 py-3 outline-none focus:border-orange-500"
+            >
+              <option value="Main">Main</option>
+
+              <option value="Snack">Snack</option>
+
+              <option value="Drink">Drink</option>
+            </select>
+          </div>
+
           {/* PRICE */}
 
           <div className="mb-4">
@@ -132,20 +159,19 @@ export default function MenuModal({
 
           <div className="mb-4">
             <label className="mb-2 block text-sm font-semibold text-[#2d211b]">
-              URL gambar
+              Gambar
             </label>
 
             <input
-              type="text"
-              value={form.image}
+              type="file"
+              accept="image/*"
               onChange={(e) =>
                 setForm((prev) => ({
                   ...prev,
-                  image: e.target.value,
+                  image: e.target.files?.[0] ?? null,
                 }))
               }
-              placeholder="https://..."
-              className="w-full rounded-xl border border-[#eadfd6] px-4 py-3 outline-none focus:border-orange-500"
+              className="w-full rounded-xl border border-[#eadfd6] px-4 py-3 text-sm outline-none focus:border-orange-500"
             />
           </div>
 
@@ -153,9 +179,7 @@ export default function MenuModal({
 
           <div className="mb-6 flex items-center justify-between rounded-xl border border-[#eadfd6] p-4">
             <div>
-              <p className="font-semibold text-[#2d211b]">
-                Tersedia
-              </p>
+              <p className="font-semibold text-[#2d211b]">Tersedia</p>
 
               <p className="text-sm text-[#8b7768]">
                 Menu dapat dipesan pelanggan
@@ -171,16 +195,12 @@ export default function MenuModal({
                 }))
               }
               className={`relative h-6 w-11 rounded-full transition ${
-                form.isAvailable
-                  ? "bg-orange-500"
-                  : "bg-gray-300"
+                form.isAvailable ? "bg-orange-500" : "bg-gray-300"
               }`}
             >
               <span
                 className={`absolute top-1 h-4 w-4 rounded-full bg-white shadow transition ${
-                  form.isAvailable
-                    ? "left-6"
-                    : "left-1"
+                  form.isAvailable ? "left-6" : "left-1"
                 }`}
               />
             </button>
@@ -188,22 +208,20 @@ export default function MenuModal({
 
           {/* BUTTON */}
 
-          <div className="flex justify-end gap-3">
+          <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
             <button
               type="button"
               onClick={onClose}
-              className="rounded-xl border border-[#eadfd6] px-5 py-3 font-semibold text-[#2d211b] hover:bg-gray-50"
+              className="w-full rounded-xl border border-[#eadfd6] px-5 py-3 font-semibold text-[#2d211b] hover:bg-gray-50 sm:w-auto"
             >
               Batal
             </button>
 
             <button
               type="submit"
-              className="rounded-xl bg-orange-500 px-5 py-3 font-semibold text-white hover:bg-orange-600"
+              className="w-full rounded-xl bg-orange-500 px-5 py-3 font-semibold text-white hover:bg-orange-600 sm:w-auto"
             >
-              {editingMenu
-                ? "Simpan perubahan"
-                : "Tambah menu"}
+              {editingMenu ? "Simpan perubahan" : "Tambah menu"}
             </button>
           </div>
         </form>

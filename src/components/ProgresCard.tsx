@@ -12,7 +12,7 @@ export default function ProgresCard({
   icon,
 }: ProgresCardProps) {
   return (
-    <div className="flex h-24 w-[340px] items-center gap-4 rounded-2xl border-2 border-[#EAE4DC] bg-white p-5 shadow-sm">
+    <div className="flex h-24 w-full items-center gap-4 rounded-2xl border-2 border-[#EAE4DC] bg-white p-5 shadow-sm">
       <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#FFF5ED] text-[#F3690E]">
         {icon}
       </div>

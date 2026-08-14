@@ -8,7 +8,7 @@ const pageConfig: Record<
     description: string;
     action?: {
       label: string;
-      type: "menu" | "new-order";
+      type: "menu" | "new-order" | "table";
     };
   }
 > = {
@@ -34,6 +34,10 @@ const pageConfig: Record<
   "/table": {
     title: "Manajemen Meja",
     description: "Kelola meja dan ketersediaan meja restaurant",
+    action: {
+      label: "Tambah Meja",
+      type: "table",
+    },
   },
 
   "/menu": {
@@ -49,7 +53,7 @@ const pageConfig: Record<
 export default function Header() {
   const location = useLocation();
 
-  const { openMenuModal } = useHeaderAction();
+  const { openMenuModal, openTableModal } = useHeaderAction();
 
   const currentPage = pageConfig[location.pathname] ?? {
     title: "Restaurant",
@@ -59,18 +63,20 @@ export default function Header() {
   const handleAction = () => {
     if (currentPage.action?.type === "menu") {
       openMenuModal();
+    } else if (currentPage.action?.type === "table") {
+      openTableModal();
     }
   };
 
   return (
-    <section className="h-[90px] w-full border-b-2 border-[#EAE4DC] bg-[#FFFEFB]">
-      <div className="flex items-center justify-between">
-        <div className="container p-4">
-          <p className="text-xl font-semibold text-[#231812]">
+    <section className="min-h-[90px] w-full border-b-2 border-[#EAE4DC] bg-[#FFFEFB]">
+      <div className="flex min-h-[90px] items-center justify-between gap-3 px-4 py-3 pl-20 sm:px-6 sm:pl-20 lg:px-8 lg:pl-8">
+        <div className="min-w-0">
+          <p className="text-lg font-semibold text-[#231812] sm:text-xl">
             {currentPage.title}
           </p>
 
-          <p className="mt-1 text-sm font-medium text-[#806E60]">
+          <p className="mt-1 text-xs font-medium text-[#806E60] sm:text-sm">
             {currentPage.description}
           </p>
         </div>
@@ -78,7 +84,7 @@ export default function Header() {
         {currentPage.action && (
           <button
             onClick={handleAction}
-            className="mr-10 flex h-10 items-center justify-center rounded-xl bg-[#F3690E] px-5 text-sm font-semibold text-white transition hover:bg-orange-600"
+            className="flex h-10 shrink-0 items-center justify-center rounded-xl bg-[#F3690E] px-3 text-xs font-semibold text-white transition hover:bg-orange-600 sm:min-w-[180px] sm:px-5 sm:text-sm"
           >
             + {currentPage.action.label}
           </button>

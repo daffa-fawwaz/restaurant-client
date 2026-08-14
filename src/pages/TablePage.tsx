@@ -1,15 +1,18 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Pencil, Trash2, Plus, CheckCircle, Armchair } from "lucide-react";
 import TableModal from "../components/table/TableModal";
 import SummaryCard from "../components/table/SummaryCard";
-
-interface Table {
-  id: number;
-  number: number;
-  capacity: number;
-  isAvailable: boolean;
-  createdAt: string;
-}
+import { toast } from "sonner";
+import type { Table } from "../types/Table";
+import axios from "axios";
+import {
+  getAllTable,
+  updateIsAvailable,
+  createTable,
+  updateTable,
+  deleteTable,
+} from "../api/tableApi";
+import { useHeaderAction } from "../contexts/HeaderActionContext";
 
 interface TableForm {
   number: string;
@@ -23,49 +26,13 @@ const initialForm: TableForm = {
   isAvailable: true,
 };
 
-const dummyTables: Table[] = [
-  {
-    id: 1,
-    number: 1,
-    capacity: 2,
-    isAvailable: true,
-    createdAt: "2026-07-01T09:00:00",
-  },
-  {
-    id: 2,
-    number: 3,
-    capacity: 4,
-    isAvailable: false,
-    createdAt: "2026-07-01T09:05:00",
-  },
-  {
-    id: 3,
-    number: 5,
-    capacity: 4,
-    isAvailable: true,
-    createdAt: "2026-07-02T10:12:00",
-  },
-  {
-    id: 4,
-    number: 8,
-    capacity: 6,
-    isAvailable: false,
-    createdAt: "2026-07-04T18:40:00",
-  },
-  {
-    id: 5,
-    number: 12,
-    capacity: 8,
-    isAvailable: true,
-    createdAt: "2026-07-08T11:20:00",
-  },
-];
-
 export default function TablePage() {
-  const [tables, setTables] = useState<Table[]>(dummyTables);
+  const [tables, setTables] = useState<Table[]>([]);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTable, setEditingTable] = useState<Table | null>(null);
+
+  const { tableModalOpen, openTableModal, closeTableModal } = useHeaderAction();
 
   const [form, setForm] = useState<TableForm>(initialForm);
 
@@ -75,17 +42,56 @@ export default function TablePage() {
 
   const totalSeats = tables.reduce((total, table) => total + table.capacity, 0);
 
-  // =========================
-  // OPEN CREATE
-  // =========================
+  useEffect(() => {
+    const fetchTables = async () => {
+      try {
+        const data = await getAllTable();
+        console.log(data);
+        setTables(data);
+      } catch (err) {
+        console.error("Failed to fetch menus:", err);
+      }
+    };
 
-  const handleAddTable = () => {
-    setEditingTable(null);
-    setForm(initialForm);
-    setIsModalOpen(true);
+    fetchTables();
+  }, []);
+
+  const handleAddTable = async () => {
+    const number = Number(form.number);
+    const capacity = Number(form.capacity);
+    const isAvailable = form.isAvailable;
+
+    if (!number) {
+      alert("Nomor meja menu wajib diisi");
+      return;
+    }
+
+    if (!capacity) {
+      alert("kapasitas wajib di isi");
+      return;
+    }
+
+    try {
+      const newTable = await createTable({
+        number,
+        capacity,
+        isAvailable,
+      });
+
+      setTables((prev) => [...prev, newTable]);
+      closeTableModal();
+      setForm(initialForm);
+      toast.success("Meja berhasil ditambahkan");
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        toast.error(err.response?.data?.message || "Gagal menambahkan meja");
+      } else {
+        toast.error("Terjadi kesalahan");
+      }
+    }
   };
 
-  const handleEditTable = (table: Table) => {
+  const handleEditTable = async (table: Table) => {
     setEditingTable(table);
 
     setForm({
@@ -94,7 +100,7 @@ export default function TablePage() {
       isAvailable: table.isAvailable,
     });
 
-    setIsModalOpen(true);
+    openTableModal();
   };
 
   const handleCloseModal = () => {
@@ -103,62 +109,55 @@ export default function TablePage() {
     setForm(initialForm);
   };
 
-  // =========================
-  // SUBMIT
-  // =========================
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleUpdateTable = async () => {
+    if (!editingTable) return;
 
     const number = Number(form.number);
     const capacity = Number(form.capacity);
 
-    if (!number || !capacity) {
-      alert("Nomor meja dan kapasitas wajib diisi");
+    if (!number) {
+      alert("Nomor meja wajib diisi");
       return;
     }
 
-    // Check duplicate table number
-    const duplicate = tables.some(
-      (table) => table.number === number && table.id !== editingTable?.id,
-    );
-
-    if (duplicate) {
-      alert("Nomor meja sudah digunakan");
+    if (!capacity) {
+      alert("Kapasitas wajib diisi");
       return;
     }
 
-    if (editingTable) {
-      setTables((prev) =>
-        prev.map((table) =>
-          table.id === editingTable.id
-            ? {
-                ...table,
-                number,
-                capacity,
-                isAvailable: form.isAvailable,
-              }
-            : table,
-        ),
-      );
-    } else {
-      const newTable: Table = {
-        id:
-          tables.length > 0
-            ? Math.max(...tables.map((table) => table.id)) + 1
-            : 1,
-
+    try {
+      const updatedTable = await updateTable(editingTable.id, {
         number,
         capacity,
         isAvailable: form.isAvailable,
+      });
 
-        createdAt: new Date().toISOString(),
-      };
+      setTables((prev) =>
+        prev.map((table) =>
+          table.id === editingTable.id ? updatedTable : table,
+        ),
+      );
 
-      setTables((prev) => [...prev, newTable]);
+      closeTableModal();
+      setEditingTable(null);
+      setForm(initialForm);
+      toast.success("Meja berhasil diupdate");
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        toast.error(err.response?.data?.message || "Gagal menambahkan meja");
+      } else {
+        toast.error("Terjadi kesalahan");
+      }
     }
+  };
 
-    handleCloseModal();
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (editingTable) {
+      handleUpdateTable();
+      return;
+    }
+    handleAddTable();
   };
 
   const handleDelete = (id: number) => {
@@ -168,24 +167,27 @@ export default function TablePage() {
 
     if (!confirmed) return;
 
+    deleteTable(id);
+
     setTables((prev) => prev.filter((table) => table.id !== id));
   };
 
-  const handleToggleAvailability = (id: number) => {
-    setTables((prev) =>
-      prev.map((table) =>
-        table.id === id
-          ? {
-              ...table,
-              isAvailable: !table.isAvailable,
-            }
-          : table,
-      ),
-    );
+  const handleToggleAvailability = async (id: number) => {
+    try {
+      const updatedTable = await updateIsAvailable(id);
+
+      setTables((prev) =>
+        prev.map((table) => (table.id === id ? updatedTable : table)),
+      );
+    } catch (error) {
+      console.error("Failed to update table availability:", error);
+
+      alert("Gagal mengubah ketersediaan meja");
+    }
   };
 
   return (
-    <div className="min-h-screen bg-[#FCFAF7] p-8">
+    <div className="min-h-screen bg-[#FCFAF7] p-4 sm:p-6 lg:p-8">
       <div className="mb-8 grid grid-cols-1 gap-5 md:grid-cols-3">
         <SummaryCard
           icon={<Armchair size={20} />}
@@ -206,8 +208,8 @@ export default function TablePage() {
         />
       </div>
 
-      <div className="overflow-hidden rounded-2xl border border-[#eadfd6] bg-white shadow-sm">
-        <table className="w-full">
+      <div className="overflow-x-auto rounded-2xl border border-[#eadfd6] bg-white shadow-sm">
+        <table className="min-w-[700px] w-full">
           <thead>
             <tr className="border-b border-[#eadfd6] text-left text-[#8b7768]">
               <th className="px-3 py-2">ID</th>
@@ -306,7 +308,7 @@ export default function TablePage() {
 
       {/* ================= MODAL ================= */}
 
-      {isModalOpen && (
+      {tableModalOpen && (
         <TableModal
           form={form}
           setForm={setForm}
